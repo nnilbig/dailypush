@@ -50,6 +50,7 @@ def main():
         "title": entry["title"],
         "extract": entry["extract"],
         "url": entry["url"],
+        "psychologist": entry.get("psychologist", ""),
     }
     save_json(TODAY_PATH, today_record)
 
