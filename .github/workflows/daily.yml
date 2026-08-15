@@ -1,0 +1,35 @@
+name: Daily Psychology Knowledge
+
+on:
+  schedule:
+    - cron: '0 16 * * *'  # 16:00 UTC = 00:00 Asia/Taipei
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: pip install -r requirements.txt
+
+      - name: Build/refresh knowledge pool
+        run: python scripts/build_pool.py
+
+      - name: Pick today's entry
+        run: python scripts/pick_today.py
+
+      - name: Commit and push updated data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/pool.json data/today.json data/history.json
+          git diff --cached --quiet && echo "No changes to commit" || git commit -m "Update daily psychology knowledge"
+          git push
